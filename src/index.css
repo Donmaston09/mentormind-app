@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom global styles & scrollbars for midnight luxury look */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #09111c;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D4AF37;
+  }
+}
+
+/* Full-screen background effects */
+.bg-mesh-gradient {
+  background-color: #0D1B2A;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(13, 27, 42, 0.9) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(26, 44, 82, 0.4) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(123, 47, 190, 0.15) 0, transparent 60%);
+}
+
+.gold-glow {
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.card-gold-border {
+  border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.card-gold-border:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+}
+
+/* Onboarding slide animation controls */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
