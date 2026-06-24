@@ -66,32 +66,3 @@ Optional model overrides:
 npm run build
 npm run start
 ```
-
-## Deploy To GitHub
-
-This folder is ready to initialize as a Git repository:
-
-```bash
-git init
-git add .
-git commit -m "Prepare MentorMind for deployment"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/mentormind-reloaded.git
-git push -u origin main
-```
-
-Do not commit `.env` or any API keys.
-
-## Deploy To Render
-
-You can deploy using `render.yaml` as a Blueprint, or create a Render Web Service manually.
-
-Manual Render settings:
-
-- Runtime: Node
-- Build command: `npm ci && npm run build`
-- Start command: `npm run start`
-- Environment: `NODE_ENV=production`
-- Add `AI_PROVIDER` plus the API key variables for the providers you want enabled.
-
-Render sets `PORT` automatically; the Express server reads it at runtime.
