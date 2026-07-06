@@ -43,6 +43,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         name: trimmedName,
         onboarded: true,
         apiKey: '',
+        apiKeys: {},
         aiProvider: 'gemini',
         streaks: { current: 1, longest: 1, lastActiveDate: new Date().toISOString().split('T')[0] },
         spiritualTrack: { studyCount: 0, prayerMinutes: 0, fastingDays: 0, givingCount: 0 },

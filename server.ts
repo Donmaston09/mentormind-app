@@ -19,6 +19,7 @@ type AIProvider = "gemini" | "groq" | "openai" | "anthropic";
 type GenerateOptions = {
   systemInstruction: string;
   contents: any;
+  apiKey?: string;
   temperature?: number;
   responseMimeType?: "application/json";
 };
@@ -76,6 +77,21 @@ function getGeminiClient(): GoogleGenAI | null {
   return aiClient;
 }
 
+function createGeminiClient(apiKey?: string): GoogleGenAI | null {
+  const key = apiKey?.trim();
+  if (key) {
+    return new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'mentormind-app',
+        }
+      }
+    });
+  }
+  return getGeminiClient();
+}
+
 let groqClient: Groq | null = null;
 function getGroqClient(): Groq | null {
   const apiKey = process.env.GROQ_API_KEY;
@@ -86,6 +102,11 @@ function getGroqClient(): Groq | null {
     groqClient = new Groq({ apiKey });
   }
   return groqClient;
+}
+
+function createGroqClient(apiKey?: string): Groq | null {
+  const key = apiKey?.trim();
+  return key ? new Groq({ apiKey: key }) : getGroqClient();
 }
 
 let openAIClient: OpenAI | null = null;
@@ -100,6 +121,11 @@ function getOpenAIClient(): OpenAI | null {
   return openAIClient;
 }
 
+function createOpenAIClient(apiKey?: string): OpenAI | null {
+  const key = apiKey?.trim();
+  return key ? new OpenAI({ apiKey: key }) : getOpenAIClient();
+}
+
 let anthropicClient: Anthropic | null = null;
 function getAnthropicClient(): Anthropic | null {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -110,6 +136,11 @@ function getAnthropicClient(): Anthropic | null {
     anthropicClient = new Anthropic({ apiKey });
   }
   return anthropicClient;
+}
+
+function createAnthropicClient(apiKey?: string): Anthropic | null {
+  const key = apiKey?.trim();
+  return key ? new Anthropic({ apiKey: key }) : getAnthropicClient();
 }
 
 // Resilient wrapper to handle model rate limiting or 503 service unavailability
@@ -165,7 +196,7 @@ async function generateAIContent(provider: AIProvider, options: GenerateOptions)
     : "";
 
   if (provider === "gemini") {
-    const ai = getGeminiClient();
+    const ai = createGeminiClient(options.apiKey);
     if (!ai) {
       throw new Error("GEMINI_API_KEY is not configured.");
     }
@@ -181,7 +212,7 @@ async function generateAIContent(provider: AIProvider, options: GenerateOptions)
   }
 
   if (provider === "groq") {
-    const client = getGroqClient();
+    const client = createGroqClient(options.apiKey);
     if (!client) {
       throw new Error("GROQ_API_KEY is not configured.");
     }
@@ -198,7 +229,7 @@ async function generateAIContent(provider: AIProvider, options: GenerateOptions)
   }
 
   if (provider === "openai") {
-    const client = getOpenAIClient();
+    const client = createOpenAIClient(options.apiKey);
     if (!client) {
       throw new Error("OPENAI_API_KEY is not configured.");
     }
@@ -214,7 +245,7 @@ async function generateAIContent(provider: AIProvider, options: GenerateOptions)
     return completion.choices[0]?.message?.content || "";
   }
 
-  const client = getAnthropicClient();
+  const client = createAnthropicClient(options.apiKey);
   if (!client) {
     throw new Error("ANTHROPIC_API_KEY is not configured.");
   }
@@ -243,7 +274,7 @@ function providerOfflineResponse(provider: AIProvider, error: any) {
 app.post("/api/chat", async (req, res) => {
   const provider = normalizeProvider(req.body?.provider);
   try {
-    const { message, history, mentorIds, mentorPrompts, userName, activeGoals, recentJournals } = req.body;
+    const { message, history, mentorIds, mentorPrompts, userName, activeGoals, recentJournals, apiKey } = req.body;
 
     let systemInstruction = "";
     let contents = [];
@@ -331,6 +362,7 @@ CRITICAL AGENTIC PANEL RULES:
     const replyText = await generateAIContent(provider, {
       contents,
       systemInstruction,
+      apiKey,
       temperature: 0.75,
     });
 
@@ -350,7 +382,7 @@ CRITICAL AGENTIC PANEL RULES:
 app.post("/api/proactive-counsel", async (req, res) => {
   const provider = normalizeProvider(req.body?.provider);
   try {
-    const { userName, activeGoals, recentJournals, mentorIds, mentorPrompts } = req.body;
+    const { userName, activeGoals, recentJournals, mentorIds, mentorPrompts, apiKey } = req.body;
 
     if (!mentorIds || mentorIds.length === 0) {
       return res.json({
@@ -401,6 +433,7 @@ Do not wrap inside markdown blocks or include backticks.`;
     const responseText = await generateAIContent(provider, {
       contents: `Provide advisory notes for ${userName || 'friend'} based on their state.`,
       systemInstruction,
+      apiKey,
       responseMimeType: "application/json",
       temperature: 0.8,
     });
@@ -423,7 +456,7 @@ Do not wrap inside markdown blocks or include backticks.`;
 app.post("/api/journal-analyze", async (req, res) => {
   const provider = normalizeProvider(req.body?.provider);
   try {
-    const { content, type } = req.body;
+    const { content, type, apiKey } = req.body;
 
     const systemInstruction = `You are an expert psychological coach, therapist, and spiritual mentor.
 Analyze the user's ${type} journal entry. Provide a supportive, highly constructive analysis in JSON format.
@@ -441,6 +474,7 @@ Make sure your response is a valid, raw JSON object without markdown wrapping or
     const responseText = await generateAIContent(provider, {
       contents: `Analyze this journal entry:\n\n"${content}"`,
       systemInstruction,
+      apiKey,
       responseMimeType: "application/json",
       temperature: 0.7,
     });
@@ -462,7 +496,7 @@ Make sure your response is a valid, raw JSON object without markdown wrapping or
 app.post("/api/daily-theme", async (req, res) => {
   const provider = normalizeProvider(req.body?.provider);
   try {
-    const { journalsHistory } = req.body;
+    const { journalsHistory, apiKey } = req.body;
 
     if (!journalsHistory || journalsHistory.length === 0) {
       return res.json({
@@ -484,6 +518,7 @@ Make sure your response is valid JSON.`;
     const responseText = await generateAIContent(provider, {
       contents: `Recent journals:\n\n${journalTexts}`,
       systemInstruction,
+      apiKey,
       responseMimeType: "application/json",
       temperature: 0.7,
     });

@@ -151,6 +151,7 @@ export default function Chat({ profile, initialMentorId, clearInitialMentor }: C
           mentorPrompts,
           userName: profile.name,
           provider: profile.aiProvider || 'gemini',
+          apiKey: profile.apiKeys?.[profile.aiProvider || 'gemini'] || profile.apiKey,
           activeGoals: activeGoals.map(g => ({ title: g.title, domain: g.domain, progress: g.progress })),
           recentJournals: recentJournals.map(j => ({ date: j.date, type: j.type, content: j.content }))
         })

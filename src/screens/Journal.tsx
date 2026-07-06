@@ -80,7 +80,12 @@ export default function Journal({ profile }: JournalProps) {
       const res = await fetch("/api/journal-analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, type, provider: profile.aiProvider || 'gemini' })
+        body: JSON.stringify({
+          content,
+          type,
+          provider: profile.aiProvider || 'gemini',
+          apiKey: profile.apiKeys?.[profile.aiProvider || 'gemini'] || profile.apiKey
+        })
       });
 
       const data = await res.json();

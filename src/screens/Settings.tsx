@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, User, Key, Check, ShieldAlert, Cpu, GraduationCap } from 'lucide-react';
+import { Settings as SettingsIcon, User, Key, Check, ShieldAlert, Cpu, GraduationCap, Eye, EyeOff, Clipboard } from 'lucide-react';
 import { AIProvider, UserProfile } from '../types';
 import { MentorMindDB } from '../lib/db';
 
@@ -12,6 +12,8 @@ interface SettingsProps {
 export default function Settings({ profile, onUpdateProfile, onResetOnboarding }: SettingsProps) {
   const [userName, setUserName] = useState(profile.name);
   const [aiProvider, setAiProvider] = useState<AIProvider>(profile.aiProvider || 'gemini');
+  const [apiKeys, setApiKeys] = useState<Partial<Record<AIProvider, string>>>(profile.apiKeys || {});
+  const [showApiKey, setShowApiKey] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -21,7 +23,9 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
     const updated: UserProfile = {
       ...profile,
       name: userName.trim(),
-      aiProvider
+      aiProvider,
+      apiKey: apiKeys[aiProvider]?.trim() || '',
+      apiKeys
     };
 
     try {
@@ -40,6 +44,8 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
     { id: 'openai', label: 'OpenAI', env: 'OPENAI_API_KEY', model: 'OPENAI_MODEL or gpt-4o-mini' },
     { id: 'anthropic', label: 'Anthropic', env: 'ANTHROPIC_API_KEY', model: 'ANTHROPIC_MODEL or claude-3-5-haiku-latest' },
   ];
+
+  const selectedProvider = providers.find(provider => provider.id === aiProvider) || providers[0];
 
   const handleClearDatabase = async () => {
     if (!confirm("CRITICAL WARNING: This will permanently delete all your journals, custom goals, milestones, and dialogue session logs from this device. Do you absolutely wish to proceed?")) {
@@ -112,6 +118,7 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
           <div className="grid grid-cols-2 gap-2">
             {providers.map(provider => {
               const selected = aiProvider === provider.id;
+              const hasKey = Boolean(apiKeys[provider.id]?.trim());
               return (
                 <button
                   type="button"
@@ -119,19 +126,66 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
                   onClick={() => setAiProvider(provider.id)}
                   className={`rounded-lg border px-3 py-2 text-left transition-all ${selected ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-[#F8F5F0]' : 'border-slate-800 bg-[#0D1B2A] text-slate-400 hover:text-slate-200'}`}
                 >
-                  <span className="block text-xs font-serif font-bold">{provider.label}</span>
-                  <span className="block text-[9px] font-mono text-slate-500">{provider.env}</span>
+                  <span className="flex items-center justify-between gap-2 text-xs font-serif font-bold">
+                    {provider.label}
+                    {hasKey ? <Check className="w-3 h-3 text-emerald-400" /> : null}
+                  </span>
+                  <span className="block text-[9px] font-mono text-slate-500 mt-0.5">{provider.env}</span>
                 </button>
               );
             })}
           </div>
 
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">
+              Paste {selectedProvider.label} API key
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={apiKeys[aiProvider] || ''}
+                onChange={(e) => setApiKeys(prev => ({ ...prev, [aiProvider]: e.target.value }))}
+                placeholder={`${selectedProvider.env}=...`}
+                className="w-full bg-[#0D1B2A] border border-slate-700/80 rounded-xl py-2 pl-3 pr-10 text-sm text-[#F8F5F0] placeholder-slate-600 focus:outline-none focus:border-[#D4AF37] transition-all"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(prev => !prev)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#D4AF37] hover:bg-slate-800 transition-all"
+                title={showApiKey ? 'Hide API key' : 'Show API key'}
+              >
+                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const key = apiKeys[aiProvider] || '';
+                  if (!key) {
+                    alert('No API key to copy');
+                    return;
+                  }
+                  navigator.clipboard.writeText(key).then(() => {
+                    alert('API key copied to clipboard');
+                  }, () => {
+                    alert('Failed to copy API key');
+                  });
+                }}
+                className="absolute right-10 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#D4AF37] hover:bg-slate-800 transition-all"
+                title="Copy API key"
+              >
+                <Clipboard className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
           <div className="space-y-2 text-xs leading-relaxed text-slate-300">
             <p>
-              API keys stay on the Express server and are never stored in this browser. Configure keys as environment variables on Render.
+              Keys saved here stay in this browser's local storage database and are sent only to your app backend when you ask for AI responses.
             </p>
             <p className="text-[10px] text-slate-400 font-mono">
-              Active provider: {providers.find(provider => provider.id === aiProvider)?.label}. Model: {providers.find(provider => provider.id === aiProvider)?.model}.
+              Active provider: {selectedProvider.label}. Model: {selectedProvider.model}. For public deployment, environment variables are still recommended.
             </p>
           </div>
         </div>

@@ -1,68 +1,15 @@
-# MentorMind Reloaded
+# Audio Backread
 
-MentorMind is a personal reflection, growth, goals, devotional, and AI mentorship app. It combines a Vite React frontend with an Express backend that can route AI requests to Gemini, Groq, OpenAI, or Anthropic.
+Backread reads uploaded PDF, EPUB, DOCX, and TXT files in the browser.
 
-Developed by **Tony Onoja, PhD**, School of Health Sciences, University of Surrey.
+## iPhone lock-screen audio
 
-## Features
+iOS can stop browser `speechSynthesis` when the screen locks. For lock-screen playback, Backread can use a small Cloudflare Worker to generate real MP3 audio, then play it through the page's hidden `<audio>` element.
 
-- Mentor chat with single-mentor and multi-mentor panel modes.
-- Journal analysis, daily focus generation, proactive counsel, and local offline fallbacks.
-- Server-side API key handling for Gemini, Groq, OpenAI, and Anthropic.
-- Browser-local persistence through IndexedDB.
-- Production build served by the same Express app for Render deployment.
+1. Deploy `cloudflare-worker.js` as a Cloudflare Worker.
+2. Add a Worker secret named `OPENAI_API_KEY`.
+3. Copy the Worker endpoint ending in `/tts`.
+4. Open Backread, expand **Background audio setup**, and paste the endpoint.
+5. Tap Play. The app will use generated audio mode, which can continue from the iPhone lock screen like normal media.
 
-## Local Setup
-
-Prerequisites: Node.js 22 or later.
-
-1. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Create a local environment file:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Add at least one API key to `.env` and set the default provider:
-
-   ```bash
-   AI_PROVIDER=gemini
-   GEMINI_API_KEY=your_key_here
-   ```
-
-4. Start the app:
-
-   ```bash
-   npm run dev
-   ```
-
-The app runs at `http://localhost:3000`.
-
-## AI Providers
-
-Supported provider values:
-
-- `gemini` with `GEMINI_API_KEY`
-- `groq` with `GROQ_API_KEY`
-- `openai` with `OPENAI_API_KEY`
-- `anthropic` with `ANTHROPIC_API_KEY`
-
-Users can select a provider in the Settings screen. If the selected provider is missing credentials or unavailable, MentorMind falls back to offline mode where available.
-
-Optional model overrides:
-
-- `GROQ_MODEL`
-- `OPENAI_MODEL`
-- `ANTHROPIC_MODEL`
-
-## Build And Run
-
-```bash
-npm run build
-npm run start
-```
+Without the endpoint, the app falls back to browser speech so it still works as a static GitHub Pages app.

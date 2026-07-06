@@ -51,6 +51,7 @@ export default function Home({ profile, setTab, onSelectMentorForChat }: HomePro
           body: JSON.stringify({
             userName: profile.name,
             provider: profile.aiProvider || 'gemini',
+            apiKey: profile.apiKeys?.[profile.aiProvider || 'gemini'] || profile.apiKey,
             activeGoals: activeGoals.map(g => ({ title: g.title, domain: g.domain, progress: g.progress })),
             recentJournals: recentJournals.map(j => ({ date: j.date, type: j.type, content: j.content })),
             mentorIds,
@@ -118,7 +119,11 @@ export default function Home({ profile, setTab, onSelectMentorForChat }: HomePro
               const res = await fetch("/api/daily-theme", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ journalsHistory: journals.slice(0, 5), provider: profile.aiProvider || 'gemini' })
+                body: JSON.stringify({
+                  journalsHistory: journals.slice(0, 5),
+                  provider: profile.aiProvider || 'gemini',
+                  apiKey: profile.apiKeys?.[profile.aiProvider || 'gemini'] || profile.apiKey
+                })
               });
               const data = await res.json();
               if (data.theme) {

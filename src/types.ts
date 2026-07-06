@@ -83,6 +83,7 @@ export interface UserProfile {
   name: string;
   onboarded: boolean;
   apiKey: string; // Optional custom API key, though server-side is default
+  apiKeys?: Partial<Record<AIProvider, string>>;
   aiProvider?: AIProvider; // Selected AI backend provider — defaults to 'gemini'
   streaks: {
     current: number;
