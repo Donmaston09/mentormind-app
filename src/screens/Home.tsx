@@ -42,7 +42,12 @@ export default function Home({ profile, setTab, onSelectMentorForChat }: HomePro
         const mentorPrompts: Record<string, string> = {};
         mentorIds.forEach(id => {
           const m = MENTORS.find(mentor => mentor.id === id);
-          if (m) mentorPrompts[id] = m.systemPrompt;
+          if (m) {
+            mentorPrompts[id] = `${m.systemPrompt}
+
+Use this deep mentor knowledge as your grounding before responding:
+${m.deepKnowledge}`;
+          }
         });
 
         const res = await fetch("/api/proactive-counsel", {

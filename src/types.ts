@@ -10,6 +10,7 @@ export interface Mentor {
   textColor: string;
   keyTeachings: string[];
   resources: string[]; // Books, sermons, etc.
+  deepKnowledge: string; // Rich knowledge profile for grounding AI responses
 }
 
 export interface WisdomQuote {

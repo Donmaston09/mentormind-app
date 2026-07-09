@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
@@ -30,7 +30,14 @@ async function generateGroqContentWithBackup(
   messages: any[],
   options: any = {}
 ) {
-  const modelsToTry = ["llama3-70b-8192", "mixtral-8x7b-32768", "llama3-8b-8192"];
+  const configuredModel = process.env.GROQ_MODEL?.trim();
+  const modelsToTry = [
+    ...(configuredModel ? [configuredModel] : []),
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b"
+  ];
   let lastError: any = null;
 
   for (const model of modelsToTry) {

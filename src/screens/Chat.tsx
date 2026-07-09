@@ -128,7 +128,12 @@ export default function Chat({ profile, initialMentorId, clearInitialMentor }: C
       const mentorPrompts: Record<string, string> = {};
       selectedMentors.forEach(id => {
         const m = MENTORS.find(mentor => mentor.id === id);
-        if (m) mentorPrompts[id] = m.systemPrompt;
+        if (m) {
+          mentorPrompts[id] = `${m.systemPrompt}
+
+Use this deep mentor knowledge as your grounding before responding:
+${m.deepKnowledge}`;
+        }
       });
 
       // Retrieve latest active goals and recent journals for dynamic agentic context

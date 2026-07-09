@@ -29,7 +29,7 @@ var import_groq_sdk = __toESM(require("groq-sdk"), 1);
 var import_dotenv = __toESM(require("dotenv"), 1);
 import_dotenv.default.config();
 var app = (0, import_express.default)();
-var PORT = process.env.PORT || 3e3;
+var PORT = Number(process.env.PORT) || 3e3;
 app.use(import_express.default.json());
 var groqClient = null;
 function getGroqClient() {
@@ -43,7 +43,14 @@ function getGroqClient() {
   return groqClient;
 }
 async function generateGroqContentWithBackup(ai, messages, options = {}) {
-  const modelsToTry = ["llama3-70b-8192", "mixtral-8x7b-32768", "llama3-8b-8192"];
+  const configuredModel = process.env.GROQ_MODEL?.trim();
+  const modelsToTry = [
+    ...configuredModel ? [configuredModel] : [],
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b"
+  ];
   let lastError = null;
   for (const model of modelsToTry) {
     let attempts = 3;
@@ -78,7 +85,7 @@ async function generateGroqContentWithBackup(ai, messages, options = {}) {
 }
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, history, mentorIds, mentorPrompts, userName, activeGoals, recentJournals } = req.body;
+    const { message, history, mentorIds, mentorPrompts, userName, activeGoals, recentJournals, creativity } = req.body;
     const ai = getGroqClient();
     if (!ai) {
       return res.json({
@@ -166,7 +173,7 @@ CRITICAL AGENTIC PANEL RULES:
       });
     }
     const response = await generateGroqContentWithBackup(ai, contents, {
-      temperature: 0.75
+      temperature: creativity !== void 0 ? parseFloat(creativity.toString()) : 0.85
     });
     const replyText = response.choices[0]?.message?.content || "I was unable to synthesize a response. Please try again.";
     res.json({

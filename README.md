@@ -30,5 +30,5 @@ Powered by **Groq's Ultra-Fast Inference LLM API**, MentorMind simulates highly 
 
 - **Frontend**: React (v19) + Vite + TailwindCSS (for sleek, responsive UI and fluid animations).
 - **Backend**: Node.js + Express (TypeScript) serving the API endpoints.
-- **AI Engine**: Groq SDK (`llama3-70b-8192` with fallbacks to `mixtral-8x7b-32768` and `llama3-8b-8192` for high reliability and sub-second responses).
+- **AI Engine**: Groq SDK (`llama-3.3-70b-versatile` with fallbacks to `llama-3.1-8b-instant` and GPT-OSS models for high reliability and fast responses). Set `GROQ_MODEL` to override the default model order.
 - **Database**: Local JSON storage (client-side persisted) for lightweight and instant onboarding.
