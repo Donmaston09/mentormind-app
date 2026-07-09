@@ -29,7 +29,7 @@ var import_groq_sdk = __toESM(require("groq-sdk"), 1);
 var import_dotenv = __toESM(require("dotenv"), 1);
 import_dotenv.default.config();
 var app = (0, import_express.default)();
-var PORT = 3e3;
+var PORT = process.env.PORT || 3e3;
 app.use(import_express.default.json());
 var groqClient = null;
 function getGroqClient() {
