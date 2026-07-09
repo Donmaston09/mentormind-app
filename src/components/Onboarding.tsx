@@ -50,7 +50,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           : selectedCategory === 'spiritual' 
             ? ['david-oyedepo', 'joshua-selman', 'paul-enenche']
             : ['steve-jobs', 'socrates', 'david-oyedepo', 'joshua-selman'],
-        dailyCheckedDate: new Date().toISOString().split('T')[0]
+        dailyCheckedDate: new Date().toISOString().split('T')[0],
+        creativity: 0.85
       };
       onComplete(initialProfile);
     }

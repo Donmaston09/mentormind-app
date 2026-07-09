@@ -70,7 +70,7 @@ async function generateGroqContentWithBackup(
 // 1. CHAT API
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, history, mentorIds, mentorPrompts, userName, activeGoals, recentJournals } = req.body;
+    const { message, history, mentorIds, mentorPrompts, userName, activeGoals, recentJournals, creativity } = req.body;
     const ai = getGroqClient();
 
     if (!ai) {
@@ -166,7 +166,7 @@ CRITICAL AGENTIC PANEL RULES:
     }
 
     const response = await generateGroqContentWithBackup(ai, contents, {
-      temperature: 0.75,
+      temperature: creativity !== undefined ? parseFloat(creativity.toString()) : 0.85,
     });
 
     const replyText = response.choices[0]?.message?.content || "I was unable to synthesize a response. Please try again.";

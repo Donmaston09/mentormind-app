@@ -95,6 +95,7 @@ export interface UserProfile {
   };
   preferredMentors: string[];
   dailyCheckedDate?: string;
+  creativity?: number;
 }
 
 export interface DailyState {

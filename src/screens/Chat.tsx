@@ -151,7 +151,8 @@ export default function Chat({ profile, initialMentorId, clearInitialMentor }: C
           mentorPrompts,
           userName: profile.name,
           activeGoals: activeGoals.map(g => ({ title: g.title, domain: g.domain, progress: g.progress })),
-          recentJournals: recentJournals.map(j => ({ date: j.date, type: j.type, content: j.content }))
+          recentJournals: recentJournals.map(j => ({ date: j.date, type: j.type, content: j.content })),
+          creativity: profile.creativity
         })
       });
 

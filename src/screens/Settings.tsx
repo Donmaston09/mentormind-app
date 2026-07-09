@@ -11,6 +11,7 @@ interface SettingsProps {
 
 export default function Settings({ profile, onUpdateProfile, onResetOnboarding }: SettingsProps) {
   const [userName, setUserName] = useState(profile.name);
+  const [creativity, setCreativity] = useState(profile.creativity || 0.85);
   const [saved, setSaved] = useState(false);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -19,7 +20,8 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
 
     const updated: UserProfile = {
       ...profile,
-      name: userName.trim()
+      name: userName.trim(),
+      creativity: parseFloat(creativity.toString())
     };
 
     try {
@@ -70,7 +72,6 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
             <User className="w-4 h-4" />
             <h3 className="font-serif text-sm font-bold text-[#F8F5F0]">My Profile</h3>
           </div>
-
           <form onSubmit={handleSaveProfile} className="space-y-3.5">
             <div className="space-y-1">
               <label className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">How mentors address me:</label>
@@ -81,6 +82,26 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
                 maxLength={20}
                 className="w-full bg-[#0D1B2A] border border-slate-700/80 rounded-xl py-2 px-3 text-sm text-[#F8F5F0] placeholder-slate-500 focus:outline-none focus:border-[#D4AF37] transition-all"
               />
+            </div>
+
+            <div className="space-y-1 pt-1">
+              <div className="flex justify-between text-[10px] font-mono uppercase tracking-widest text-slate-400">
+                <label>Mentor Creativity:</label>
+                <span className="text-[#D4AF37] font-semibold">{creativity}</span>
+              </div>
+              <input
+                type="range"
+                min="0.2"
+                max="1.2"
+                step="0.05"
+                value={creativity}
+                onChange={(e) => setCreativity(parseFloat(e.target.value))}
+                className="w-full h-1.5 bg-[#0D1B2A] rounded-lg appearance-none cursor-pointer accent-[#D4AF37] border border-slate-800"
+              />
+              <div className="flex justify-between text-[8px] text-slate-500 font-mono">
+                <span>Logical & Consistent (0.2)</span>
+                <span>Highly Spontaneous (1.2)</span>
+              </div>
             </div>
 
             <button
@@ -102,7 +123,7 @@ export default function Settings({ profile, onUpdateProfile, onResetOnboarding }
 
           <div className="space-y-2 text-xs leading-relaxed text-slate-300">
             <p>
-              Your system's <strong>Gemini API Key</strong> is fully secured by Google AI Studio. It is never exposed client-side or sent over untrusted connections.
+              Your system's <strong>Groq API Key</strong> is fully secured by your environment variables. It is never exposed client-side or sent over untrusted connections.
             </p>
             <p className="text-[10px] text-slate-400 font-mono">
               The Express backend processes your mentor chats privately on secure Node.js containers. No manual API setup is required.
