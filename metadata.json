@@ -1,0 +1,6 @@
+{
+  "name": "MentorMind",
+  "description": "Personal Reflection, Growth & Spiritual Mentorship App featuring wisdom from world-class intellectual and spiritual leaders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
